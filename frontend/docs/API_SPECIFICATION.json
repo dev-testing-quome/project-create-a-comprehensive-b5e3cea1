@@ -1,0 +1,305 @@
+```json
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "project-create-a-comprehensive API",
+    "version": "v1",
+    "description": "A comprehensive SEC-compliant trading platform API"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer", "format": "int64"},
+          "username": {"type": "string"},
+          "email": {"type": "string", "format": "email"}
+        },
+        "required": ["username", "email"]
+      },
+      "Trade": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer", "format": "int64"},
+          "userId": {"type": "integer", "format": "int64"},
+          "symbol": {"type": "string"},
+          "quantity": {"type": "integer"},
+          "price": {"type": "number", "format": "float"}
+        },
+        "required": ["userId", "symbol", "quantity", "price"]
+      },
+      "Portfolio": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer", "format": "int64"},
+          "userId": {"type": "integer", "format": "int64"},
+          "totalValue": {"type": "number", "format": "float"}
+        },
+        "required": ["userId", "totalValue"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {"type": "integer"},
+          "message": {"type": "string"}
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": {"type": "integer"},
+          "limit": {"type": "integer"},
+          "total": {"type": "integer"}
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Create user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/User"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/User"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          }
+        },
+        "security": [{"bearerAuth": []}]
+      },
+      "get": {
+        "summary": "Get users",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/User"}
+                    },
+                    "pagination": {"$ref": "#/components/schemas/Pagination"}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{"bearerAuth": []}]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by ID",
+        "parameters": [
+          {"name": "id", "in": "path", "schema": {"type": "integer"}, "required": true}
+        ],
+        "responses": {
+          "200": {
+            "description": "User found",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/User"}
+              }
+            }
+          },
+          "404": {"description": "User not found"}
+        },
+        "security": [{"bearerAuth": []}]
+      },
+      "put": {
+        "summary": "Update user",
+        "parameters": [
+          {"name": "id", "in": "path", "schema": {"type": "integer"}, "required": true}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/User"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/User"}
+              }
+            }
+          },
+          "404": {"description": "User not found"}
+        },
+        "security": [{"bearerAuth": []}]
+      },
+      "delete": {
+        "summary": "Delete user",
+        "parameters": [
+          {"name": "id", "in": "path", "schema": {"type": "integer"}, "required": true}
+        ],
+        "responses": {
+          "204": {"description": "User deleted"},
+          "404": {"description": "User not found"}
+        },
+        "security": [{"bearerAuth": []}]
+      }
+    },
+    "/trades": {
+      "post": {
+        "summary": "Create trade",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Trade"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Trade created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Trade"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+              }
+            }
+          }
+        },
+        "security": [{"bearerAuth": []}]
+      },
+      "get": {
+        "summary": "Get trades",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "Page number"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "Items per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trades list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Trade"}
+                    },
+                    "pagination": {"$ref": "#/components/schemas/Pagination"}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [{"bearerAuth": []}]
+      }
+    },
+    "/portfolios": {
+      "get": {
+        "summary": "Get portfolios",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {"type": "integer"},
+            "description": "User ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Portfolios list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Portfolio"}
+                }
+              }
+            }
+          }
+        },
+        "security": [{"bearerAuth": []}]
+      }
+    }
+  }
+}
+```
